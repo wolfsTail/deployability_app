@@ -27,5 +27,23 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=password
 
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+  
+  worker:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      hostname: worker
+      entrypoint: celery
+      command: -A celery_app.app worker --loglevel=info
+      volumes:
+        - ./service:/service
+      links:
+        - redis
+      depends_on:
+        - redis
+
 volumes:
   postgres_data:
